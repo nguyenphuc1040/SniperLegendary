@@ -11,13 +11,14 @@ public class PlayerCtrl : MonoBehaviour
     public GameObject bulletPrefab;
     public AudioSource audio_source;
     public AudioClip shotAudioClip,reloadAudioClip,shotScopeAudioClip,stepFoot;
-    bool isHavingBullet, timeBreath;
+    bool isHavingBullet, timeBreath, isLoaded;
   
     private void Awake() {
         
     }
     void Start()
     {
+        isLoaded = true;
         isHavingBullet=true;
         timeBreath = true;
         speed = 3f;
@@ -60,7 +61,7 @@ public class PlayerCtrl : MonoBehaviour
     }
     IEnumerator _holderbreath(){
         timeBreath = false;
-        playerAnimator.SetTrigger("holderbreath");
+        playerAnimator.SetTrigger("holdbreath");
         cameraAnimator.SetTrigger("holderbreath");
         yield return new WaitForSeconds(4f);
        
@@ -81,13 +82,16 @@ public class PlayerCtrl : MonoBehaviour
             audio_source.PlayOneShot(shotAudioClip);
             Instantiate(bulletPrefab,barrelPosition.position,barrelPosition.rotation);           
         }
-        if (Input.GetMouseButtonUp(0)){
+        if (Input.GetMouseButtonUp(0) && isLoaded){
     
             if (ScopeMode.ins.isScope) ScopeMode.ins._scopeTransition();
             StartCoroutine(_reloadHandAndWeapon());
             StartCoroutine(_reloadBullet());
         }
-        
+        if (Input.GetMouseButtonDown(1) && isLoaded){
+            ScopeMode.ins._scopeTransition();
+        }
+
     }
     IEnumerator _reloadHandAndWeapon(){
         yield return new WaitForSeconds(0.4f);
@@ -96,7 +100,17 @@ public class PlayerCtrl : MonoBehaviour
         weaponAnimator.SetTrigger("reload");
     }
     IEnumerator _reloadBullet(){
+        isLoaded = false;
         yield return new WaitForSeconds(1.8f);
         isHavingBullet=true;
+        isLoaded = true;
+    }
+    int blood = 3;
+    public void _isDamaging(int damage){
+        blood-=damage;
+        if(blood<=0) _isDied();
+    }
+    public void _isDied(){
+        playerAnimator.SetTrigger("died");
     }
 }

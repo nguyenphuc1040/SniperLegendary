@@ -22,9 +22,7 @@ public class ScopeMode : MonoBehaviour
     private void Update(){
         scopeCamera.fieldOfView = zoomNumber;
         _zoomChange();
-        if (Input.GetMouseButtonDown(1)){
-            _scopeTransition();
-        }
+  
     }
 
     void _zoomChange(){
