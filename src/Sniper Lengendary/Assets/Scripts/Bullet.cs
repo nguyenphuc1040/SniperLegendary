@@ -19,6 +19,24 @@ public class Bullet : MonoBehaviour
         mPrevPos = transform.position;
         transform.Translate(Vector3.forward*speed* Time.deltaTime);
         transform.Translate(Vector3.up*-0.49f*Time.deltaTime);
+        _rayCastOne();
+    }
+    void _rayCastOne(){
+        RaycastHit[] hits = Physics.RaycastAll(new Ray(mPrevPos,(transform.position-mPrevPos).normalized),(transform.position-mPrevPos).magnitude);
+        for (int i=0; i<hits.Length;i++){
+            if (hits[i].collider.gameObject.tag=="headPlayer"){
+                Instantiate(blood,hits[i].point,Quaternion.identity);
+                hits[i].collider.gameObject.GetComponent<isDamage>()._isDamaging(3);
+            }
+            if (hits[i].collider.gameObject.tag=="bodyPlayer"){
+                hits[i].collider.gameObject.GetComponent<isDamage>()._isDamaging(1);
+            }
+            if(hits.Length!=0) Destroy(gameObject);
+            Debug.Log(hits[i].collider.gameObject.name);
+            break;
+        }
+    }
+    void _rayCastAll(){
         RaycastHit[] hits = Physics.RaycastAll(new Ray(mPrevPos,(transform.position-mPrevPos).normalized),(transform.position-mPrevPos).magnitude);
         for (int i=0; i<hits.Length;i++){
             if (hits[i].collider.gameObject.tag=="headPlayer"){

@@ -9,8 +9,13 @@ namespace dataObj{
         int blood;
         int killed;
         int died;
-        dataPlayer();
-        dataPlayer(string namePlayer,int blood,int killed,int died);
+        public dataPlayer(){}
+        public dataPlayer(string namePlayer,int blood,int killed,int died){
+            this.namePlayer = namePlayer;
+            this.blood = blood;
+            this.killed = killed;
+            this.died = died;
+        }
         public void setDataAll(string namePlayer, int blood, int killed, int died){
             this.namePlayer = namePlayer;
             this.blood = blood;

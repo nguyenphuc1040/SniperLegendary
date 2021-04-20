@@ -36,28 +36,38 @@ public class PlayerCtrl : MonoBehaviour
         _keyboardController();
         
     }
-
+    Vector3 move;
+    bool isDied;
     void _playerMove(){
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
-        Vector3 move = transform.right*x + transform.forward*z;
-        characterController.Move(move*speed*Time.deltaTime);
         
-        if(move!=Vector3.zero){
+        if (characterController.isGrounded){
+            float x = Input.GetAxis("Horizontal")*speed;
+            float z = Input.GetAxis("Vertical")*speed;
+            move = transform.right*x + transform.forward*z;
+            if(x!=0 || z!=0){
            // playerAnimator.SetTrigger("walk");
-            playerAnimator.SetFloat("run",speed*2/3);
+                playerAnimator.SetFloat("run",speed*1.5f/3);
             
+            } else {
+                playerAnimator.SetFloat("run",0f);
+                playerAnimator.SetTrigger("idle");
+            }
+            
+            if (Input.GetKeyDown(KeyCode.LeftShift) && timeBreath){
+                StartCoroutine(_holderbreath());
+                
+            }
+            if (Input.GetKeyDown(KeyCode.Space)){
+                move.y = 4.5f;
+            }
+            if (isDied) _isDied();
         } else {
             playerAnimator.SetFloat("run",0f);
             playerAnimator.SetTrigger("idle");
         }
-        
-        if (Input.GetKeyDown(KeyCode.LeftShift) && timeBreath){
-            StartCoroutine(_holderbreath());
-            
-        }
-
-        
+        move.y -= 9.8f*Time.deltaTime;      
+        characterController.Move(move*Time.deltaTime);
+        if (move.y<-20f) isDied=true;
     }
     IEnumerator _holderbreath(){
         timeBreath = false;
@@ -74,7 +84,7 @@ public class PlayerCtrl : MonoBehaviour
     }
 
     void _keyboardController(){
-        if (ScopeMode.ins.isScope) speed = 3f; 
+        if (ScopeMode.ins.isScope || !isLoaded) speed = 3f; 
             else speed = (Input.GetKey(KeyCode.LeftShift)) ? 6f : 3f;
         if (Input.GetMouseButtonDown(0) && isHavingBullet){
             isHavingBullet=false;
