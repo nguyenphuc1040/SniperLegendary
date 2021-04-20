@@ -4,10 +4,15 @@ using UnityEngine;
 
 public class MouseLook : MonoBehaviour
 {
-    public float mouseSensitivity = 50f;
+    public static MouseLook ins;
+    public float mouseSensitivity;
     float xRotation = 0f;
     float yRotation = 0f;
     public bool RotateX,RotateY;
+    private void Awake() {
+        ins = this;
+        mouseSensitivity = 70f;
+    }
     private void Start() {
         Cursor.lockState = CursorLockMode.Locked;
     }
