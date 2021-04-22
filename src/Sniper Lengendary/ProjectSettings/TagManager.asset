@@ -8,6 +8,7 @@ TagManager:
   - Bullet
   - headPlayer
   - bodyPlayer
+  - construction
   layers:
   - Default
   - TransparentFX
