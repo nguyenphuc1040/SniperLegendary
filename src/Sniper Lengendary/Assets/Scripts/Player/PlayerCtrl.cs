@@ -15,7 +15,7 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
     public GameObject bulletPrefab;
     public AudioSource audio_source;
     public AudioClip shotAudioClip;
-    bool isHavingBullet, timeBreath, isLoaded;
+    bool isHavingBullet,  isLoaded;
     public GameObject pointCameraFollow,CamHere, weapons;
     ScopeMode weaponComponent;
     CameraFollow MainCam;
@@ -42,7 +42,6 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
         
         isLoaded = true;
         isHavingBullet=true;
-        timeBreath = true;
         speed = 3f;
         if (PV.IsMine) StartCoroutine(_GetPing());
        
@@ -82,10 +81,7 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
         if (!x) playerAnimator.SetFloat("run",speed*1.5f/3); else playerAnimator.SetFloat("run",0f);
     }
     
-    IEnumerator _countTimeBreath(){
-        yield return new WaitForSeconds(5f);
-        timeBreath = true;
-    }
+
     public GameObject Bullet;
     public Animation breathAnimation;
     void _keyboardController(){
@@ -97,8 +93,6 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
             cameraAnimator.SetFloat("idle",1f);
             cameraAnimator.SetBool("shotbool",true);
             StartCoroutine(_shotDone());
-            audio_source.PlayOneShot(shotAudioClip);
-            PV.RPC("_audioPlay",RpcTarget.All,0);
             PV.RPC("_setInfoBullet",RpcTarget.All,data.getNamePlayer());
             PhotonNetwork.Instantiate(Path.Combine("Player","Bullet"),barrelPosition.position,barrelPosition.rotation);           
         }

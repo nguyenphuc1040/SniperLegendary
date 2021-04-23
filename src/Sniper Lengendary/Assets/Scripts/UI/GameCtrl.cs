@@ -13,6 +13,8 @@ public class GameCtrl : MonoBehaviour
     void Awake()
     {
         ins = this;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void Update()
@@ -25,9 +27,12 @@ public class GameCtrl : MonoBehaviour
             statusSettingPanel = !statusSettingPanel;
             settingPanel.SetActive(statusSettingPanel);
             if (statusSettingPanel){
+                Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.None;
             } else {
                 Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+               
             }
         }
     }

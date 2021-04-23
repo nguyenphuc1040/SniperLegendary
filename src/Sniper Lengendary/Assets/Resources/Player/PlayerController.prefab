@@ -460,6 +460,22 @@ MonoBehaviour:
   m_SynchronizeLayers:
   - SynchronizeType: 2
     LayerIndex: 0
+--- !u!114 &6840126403642125442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8875073503877718086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a623beb74ef01f419dfe1d5249340a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audio_source_player: {fileID: 5478650387140121997}
+  stepFootAudioClip: {fileID: 0}
+  reloadAudioClip: {fileID: 0}
+  shotClip: {fileID: 8300000, guid: 3bb5243c61865584bb1e3dcf94f61b9f, type: 3}
 --- !u!136 &8875073503417545783
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -586,9 +602,9 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 100
+  MaxDistance: 500
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -726,6 +742,7 @@ MonoBehaviour:
   audio_source_player: {fileID: 8875073502939883438}
   stepFootAudioClip: {fileID: 8300000, guid: 29eeeb3531f9ad5499f0b87892a6acc2, type: 3}
   reloadAudioClip: {fileID: 0}
+  shotClip: {fileID: 0}
 --- !u!1 &8875073503929555580
 GameObject:
   m_ObjectHideFlags: 0
@@ -816,6 +833,7 @@ MonoBehaviour:
   audio_source_player: {fileID: 8875073502939883438}
   stepFootAudioClip: {fileID: 0}
   reloadAudioClip: {fileID: 8300000, guid: 0847b7d0fe1c75b44b1f5e234146cbde, type: 3}
+  shotClip: {fileID: 0}
 --- !u!114 &2760444023690068759
 MonoBehaviour:
   m_ObjectHideFlags: 0
