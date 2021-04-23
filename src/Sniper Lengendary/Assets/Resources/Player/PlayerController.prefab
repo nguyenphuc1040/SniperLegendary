@@ -124,12 +124,12 @@ MonoBehaviour:
     type: 3}
   audio_source: {fileID: 5478650387140121997}
   shotAudioClip: {fileID: 8300000, guid: 3bb5243c61865584bb1e3dcf94f61b9f, type: 3}
-  reloadAudioClip: {fileID: 8300000, guid: 0847b7d0fe1c75b44b1f5e234146cbde, type: 3}
-  shotScopeAudioClip: {fileID: 8300000, guid: 3bb5243c61865584bb1e3dcf94f61b9f, type: 3}
-  stepFoot: {fileID: 0}
   pointCameraFollow: {fileID: 1006058135733881022}
   CamHere: {fileID: 0}
+  weapons: {fileID: 8875073503929555580}
   isDied: 0
+  Bullet: {fileID: 3183274574812268967, guid: 7a115ca6a413c4345a669dcccd31c603, type: 3}
+  breathAnimation: {fileID: 0}
 --- !u!82 &8875073502939883438
 AudioSource:
   m_ObjectHideFlags: 0
@@ -329,17 +329,17 @@ MonoBehaviour:
   ShowLayerWeightsInspector: 1
   ShowParameterInspector: 1
   m_SynchronizeParameters:
-  - Type: 9
-    SynchronizeType: 2
-    Name: reload
-  - Type: 9
-    SynchronizeType: 2
-    Name: scope
-  - Type: 9
-    SynchronizeType: 2
-    Name: idle
+  - Type: 4
+    SynchronizeType: 1
+    Name: reloadbool
+  - Type: 4
+    SynchronizeType: 1
+    Name: scopebool
+  - Type: 4
+    SynchronizeType: 1
+    Name: idlebool
   m_SynchronizeLayers:
-  - SynchronizeType: 2
+  - SynchronizeType: 0
     LayerIndex: 0
 --- !u!114 &1785911116044569170
 MonoBehaviour:
@@ -375,7 +375,7 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.16
-  m_Height: 0.8
+  m_Height: 0.66
   m_Direction: 1
   m_Center: {x: 0, y: 0.07, z: 0}
 --- !u!95 &8875073504207310129
@@ -449,14 +449,14 @@ MonoBehaviour:
   ShowParameterInspector: 1
   m_SynchronizeParameters:
   - Type: 9
-    SynchronizeType: 2
-    Name: shot
-  - Type: 9
-    SynchronizeType: 2
+    SynchronizeType: 1
     Name: idle
-  - Type: 9
+  - Type: 4
     SynchronizeType: 2
-    Name: holderbreath
+    Name: shotbool
+  - Type: 4
+    SynchronizeType: 0
+    Name: idlebool
   m_SynchronizeLayers:
   - SynchronizeType: 2
     LayerIndex: 0
@@ -676,23 +676,17 @@ MonoBehaviour:
   ShowLayerWeightsInspector: 1
   ShowParameterInspector: 1
   m_SynchronizeParameters:
-  - Type: 9
-    SynchronizeType: 2
-    Name: idle
-  - Type: 9
-    SynchronizeType: 2
-    Name: holdbreath
-  - Type: 9
-    SynchronizeType: 2
-    Name: walk
-  - Type: 9
-    SynchronizeType: 2
-    Name: died
   - Type: 1
     SynchronizeType: 2
     Name: run
+  - Type: 4
+    SynchronizeType: 1
+    Name: idlebool
+  - Type: 4
+    SynchronizeType: 2
+    Name: diedbool
   m_SynchronizeLayers:
-  - SynchronizeType: 2
+  - SynchronizeType: 0
     LayerIndex: 0
 --- !u!114 &4785041450069600415
 MonoBehaviour:
@@ -837,20 +831,17 @@ MonoBehaviour:
   ShowLayerWeightsInspector: 1
   ShowParameterInspector: 1
   m_SynchronizeParameters:
-  - Type: 9
+  - Type: 4
+    SynchronizeType: 1
+    Name: idlebool
+  - Type: 4
     SynchronizeType: 2
-    Name: idle
-  - Type: 9
+    Name: reloadbool
+  - Type: 4
     SynchronizeType: 2
-    Name: holdbreath
-  - Type: 9
-    SynchronizeType: 2
-    Name: scope
-  - Type: 9
-    SynchronizeType: 2
-    Name: reload
+    Name: scopebool
   m_SynchronizeLayers:
-  - SynchronizeType: 2
+  - SynchronizeType: 0
     LayerIndex: 0
 --- !u!114 &9186152519478448999
 MonoBehaviour:
@@ -1056,17 +1047,17 @@ PrefabInstance:
     - target: {fileID: 4463556434305703173, guid: a7389308dbeab4646aee51c163afe8bf,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4463556434305703175, guid: a7389308dbeab4646aee51c163afe8bf,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4463556434305703177, guid: a7389308dbeab4646aee51c163afe8bf,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4463556434305703179, guid: a7389308dbeab4646aee51c163afe8bf,
         type: 3}

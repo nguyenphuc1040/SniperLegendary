@@ -14,21 +14,28 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
     public Transform barrelPosition;
     public GameObject bulletPrefab;
     public AudioSource audio_source;
-    public AudioClip shotAudioClip,reloadAudioClip,shotScopeAudioClip,stepFoot;
+    public AudioClip shotAudioClip;
     bool isHavingBullet, timeBreath, isLoaded;
-    public GameObject pointCameraFollow,CamHere;
+    public GameObject pointCameraFollow,CamHere, weapons;
+    ScopeMode weaponComponent;
     CameraFollow MainCam;
     private void Awake() {
         PV = GetComponent<PhotonView>();
         if (PV.IsMine){
-            blood = 3;
+            weaponComponent = weapons.GetComponent<ScopeMode>();
             CamHere = GameObject.Find("CamHere");
             MainCam = CamHere.transform.Find("CameraMain").GetComponent<CameraFollow>();
-           // MainCam = GameObject.Find("CameraMain").GetComponent<CameraFollow>();    
             MainCam._getFollower(pointCameraFollow);
             characterController = GetComponent<CharacterController>();   
+            _initData();
         }
         
+    }
+    void _initData(){
+        if (ManagerCtrl.ins!=null) data.setNamePlayer(ManagerCtrl.ins._GetUserName());
+        data.setBlood(3);
+        data.setKilled(0);
+        data.setDied(0);
     }
     void Start()
     {
@@ -51,7 +58,7 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
             _playerMove();
             _keyboardController();
         }
-        if (PV.IsMine && GameCtrl.ins.statusSettingPanel) playerAnimator.SetTrigger("idle");
+        if (PV.IsMine && GameCtrl.ins.statusSettingPanel) playerAnimator.SetBool("idlebool",true);
     }
     Vector3 move;
     public bool isDied;
@@ -61,111 +68,101 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
             float x = Input.GetAxis("Horizontal")*speed;
             float z = Input.GetAxis("Vertical")*speed;
             move = transform.right*x + transform.forward*z;
-            if(x!=0 || z!=0 || (x!=0 && z!=0)){
-           // playerAnimator.SetTrigger("walk");
-                playerAnimator.SetFloat("run",speed*1.5f/3);
-            
-            } else {
-              //  playerAnimator.SetFloat("run",0f);
-                playerAnimator.SetTrigger("idle");
-            }
-            
-            if (Input.GetKeyDown(KeyCode.LeftShift) && timeBreath){
-                StartCoroutine(_holderbreath());
-                
-            }
+            _updateRun((x==0f && z==0f));
             if (Input.GetKeyDown(KeyCode.Space)){
                 move.y = 4.5f;
             }
-        } else {
-            playerAnimator.SetFloat("run",0f);
-            playerAnimator.SetTrigger("idle");
-        }
+        } else _updateRun(true);
         move.y -= 9.8f*Time.deltaTime;      
         characterController.Move(move*Time.deltaTime);
       //  if (move.y<-20f) _isDamaging(3);
     }
-    IEnumerator _holderbreath(){
-        timeBreath = false;
-        playerAnimator.SetTrigger("holdbreath");
-        cameraAnimator.SetTrigger("holderbreath");
-        yield return new WaitForSeconds(4f);
-        
-        cameraAnimator.SetTrigger("idle");
-        StartCoroutine(_countTimeBreath());
-    }    
+    void _updateRun(bool x){
+        playerAnimator.SetBool("idlebool",x);
+        if (!x) playerAnimator.SetFloat("run",speed*1.5f/3); else playerAnimator.SetFloat("run",0f);
+    }
+    
     IEnumerator _countTimeBreath(){
         yield return new WaitForSeconds(5f);
         timeBreath = true;
     }
-
+    public GameObject Bullet;
+    public Animation breathAnimation;
     void _keyboardController(){
-        if (ScopeMode.ins.isScope || !isLoaded) speed = 3f; 
+        if (weaponComponent.isScope || !isLoaded) speed = 3f; 
             else speed = (Input.GetKey(KeyCode.LeftShift)) ? 6f : 3f;
         if (Input.GetMouseButtonDown(0) && isHavingBullet){
             isHavingBullet=false;
-            PV.RPC("_cameraAnimatorRPC",RpcTarget.All,"shot");
-            //cameraAnimator.SetTrigger("shot");
+            Debug.Log("stho");
+            cameraAnimator.SetFloat("idle",1f);
+            cameraAnimator.SetBool("shotbool",true);
+            StartCoroutine(_shotDone());
             audio_source.PlayOneShot(shotAudioClip);
             PV.RPC("_audioPlay",RpcTarget.All,0);
+            PV.RPC("_setInfoBullet",RpcTarget.All,data.getNamePlayer());
             PhotonNetwork.Instantiate(Path.Combine("Player","Bullet"),barrelPosition.position,barrelPosition.rotation);           
         }
         if (Input.GetMouseButtonUp(0) && isLoaded){
     
-            if (ScopeMode.ins.isScope) ScopeMode.ins._scopeTransition();
+            if (weaponComponent.isScope) weaponComponent._scopeTransition();
             StartCoroutine(_reloadHandAndWeapon());
             StartCoroutine(_reloadBullet());
         }
         if (Input.GetMouseButtonDown(1) && isLoaded){
-            ScopeMode.ins._scopeTransition();
+            weaponComponent._scopeTransition();
         }
-
+        if (Input.GetKey(KeyCode.LeftShift) && isHavingBullet){
+            cameraAnimator.SetFloat("idle",0f);
+        } else {
+            cameraAnimator.SetFloat("idle",1f);
+        }
+    }
+    IEnumerator _shotDone(){
+        yield return new WaitForSeconds(0.1f);
+        cameraAnimator.SetBool("shotbool",false);
+    }
+    [PunRPC]
+    void _setInfoBullet(string name){
+        Bullet.GetComponent<Bullet>().nameHost = name;
     }
     IEnumerator _reloadHandAndWeapon(){
         yield return new WaitForSeconds(0.4f);
-      //  audio_source.PlayOneShot(reloadAudioClip);
-        PV.RPC("_handAnimatorRPC",RpcTarget.All,"reload");
-       // handAnimator.SetTrigger("reload");
-        PV.RPC("_weaponAnimatorRPC",RpcTarget.All,"reload");
-       // weaponAnimator.SetTrigger("reload");
+        weaponComponent._weaponSetBool(false,false,true);
+        weaponComponent._handSetBool(false,false,true);
+        yield return new WaitForSeconds(0.1f);
+        weaponComponent._weaponSetBool(false,true,false);
+        weaponComponent._handSetBool(false,true,false);
     }
-    [PunRPC]
-    void _handAnimatorRPC(string trigger){
-        handAnimator.SetTrigger(trigger);
-    }
-    [PunRPC]
-    void _weaponAnimatorRPC(string trigger){
-        weaponAnimator.SetTrigger(trigger);
-    }
-    [PunRPC]
-    void _cameraAnimatorRPC(string trigger){
-        cameraAnimator.SetTrigger(trigger);
-    }
+
     IEnumerator _reloadBullet(){
         isLoaded = false;
         yield return new WaitForSeconds(1.8f);
         isHavingBullet=true;
         isLoaded = true;
     }
-    [PunRPC]
-    void _audioPlay(int x){
-        audio_source.PlayOneShot(shotAudioClip);
-    }
-    int blood;
-    public void _isDamaging(int damage){
+
+    public void _isDamaging(int damage, string nameShotYou){
         if (PV.IsMine) {
-            blood-=damage;
-            if(blood<=0) _isDied();
+            Debug.Log(data.getBlood());
+            data.setBlood(data.getBlood()-damage);
+            Debug.Log(data.getBlood());
+            if(data.getBlood()<=0) _isDied(nameShotYou);
         }
        
     }
-    public void _isDied(){
+    [PunRPC]
+    void _showInfoKiller(string st){
+        UICtrl.ins._showInfoKiller(st);
+    }
+    public void _isDied(string nameShotYou){
         if (PV.IsMine){
-            playerAnimator.SetTrigger("died");
-            ScopeMode.ins.Weapon.SetActive(false);
+            playerAnimator.SetBool("diedbool",true);
+            weaponComponent.Weapon.SetActive(false);
             isDied = true;
             GameCtrl.ins._revival();
             UICtrl.ins._ScopeOnOff(false);
+            string tmp = nameShotYou + " đã tiêu diệt " + data.getNamePlayer();
+            PV.RPC("_showInfoKiller",RpcTarget.All,tmp);
             StartCoroutine(_countTime(1.8f));
         }      
     }

@@ -45,17 +45,28 @@ public class ScopeMode : MonoBehaviour
     public void _scopeTransition(){
         isScope = !isScope;
         if (isScope){
-            weaponAnimator.SetTrigger("scope");
-            handAnimator.SetTrigger("scope");
-            
+            _weaponSetBool(true,false,false);
+           
+            _handSetBool(true,false,false);
             StartCoroutine(_turnOnScope());
             
         } else {
-            weaponAnimator.SetTrigger("idle");
-            handAnimator.SetTrigger("idle");
+            _weaponSetBool(false,true,false);
+            _handSetBool(false,true,false);
             Weapon.SetActive(true);
             StartCoroutine(_turnOffScope());
         }
+    }
+    public void _weaponSetBool(bool x,bool y,bool z){
+        weaponAnimator.SetBool("scopebool",x);
+        weaponAnimator.SetBool("idlebool",y);
+        weaponAnimator.SetBool("reloadbool",z);
+    }
+
+    public void _handSetBool(bool x, bool y, bool z){
+        handAnimator.SetBool("scopebool",x);
+        handAnimator.SetBool("idlebool",y);
+        handAnimator.SetBool("reloadbool",z);
     }
     IEnumerator _turnOffScope(){
         yield return new WaitForSeconds(0.1f);

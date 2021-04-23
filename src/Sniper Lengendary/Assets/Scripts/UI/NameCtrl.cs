@@ -4,21 +4,24 @@ using UnityEngine;
 using UnityEngine.UI;
 public class NameCtrl : MonoBehaviour
 {
+    public static NameCtrl ins;
     public InputField namePlayer;
     public Button submitNameBtn,changeNameBtn;
     public Animator menuAnimator;
     public GameObject OverlayPanel;
     void Start()
     {
-        _setNameFirstTime();
-        
+      
+        ins = this;
     }
 
-    void _setNameFirstTime(){
-        if (!PlayerPrefs.HasKey("setNameFirstTime1")){
-            PlayerPrefs.SetInt("setNameFirstTime",0);
-            _changeName();
+    public void _setNameFirstTime(){
+        if (!PlayerPrefs.HasKey("setNameFirstTim123433131")){
+            PlayerPrefs.SetInt("setNameFirstTim123433131",0);
             StartCoroutine(_timeAnimator());
+        } else {
+            namePlayer.text = ManagerCtrl.ins._GetUserName();
+            namePlayer.interactable = false;
         }
     }
     void Update()
@@ -32,7 +35,7 @@ public class NameCtrl : MonoBehaviour
     public void _changeName(){
         OverlayPanel.SetActive(true);
         namePlayer.interactable = true;
-        menuAnimator.SetTrigger("changeName");
+        menuAnimator.SetTrigger("changeName");          
         changeNameBtn.interactable = false;
     }
     public void _submitName(){
@@ -44,6 +47,6 @@ public class NameCtrl : MonoBehaviour
     }
     IEnumerator _timeAnimator(){
         yield return new WaitForSeconds(0.2f);
-        menuAnimator.SetTrigger("changeName");
+        _changeName();
     }
 }

@@ -24,17 +24,23 @@ public class Launcher : MonoBehaviourPunCallbacks
         _setActiveMenu(true,false,false,false);
         StartCoroutine(_timeLoading());
     }
+    public bool isExitPanel;
+    public GameObject ExitPanel;
     void Update()
     {
         if (string.IsNullOrEmpty(roomname.text))
             JoinRoomWithCodeBtn.interactable = false; else JoinRoomWithCodeBtn.interactable = true;
-
+        if (Input.GetKeyDown(KeyCode.Escape)){
+            isExitPanel=!isExitPanel;
+            ExitPanel.SetActive(isExitPanel);
+        }
     }
     IEnumerator _timeLoading(){
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(5f);
         PhotonNetwork.ConnectUsingSettings();
     }
     public void _back(){
+        
         _setActiveMenu(false,true,false,false);
     }
     public void _backtoMenu(){
@@ -64,6 +70,7 @@ public class Launcher : MonoBehaviourPunCallbacks
         menu.SetActive(y);
         FindRoomMenu.SetActive(z);
         room_lobby.SetActive(a);
+        if (y)  if (NameCtrl.ins!=null) NameCtrl.ins._setNameFirstTime();
     }
     public void _CreateRoom(){
     //    if (string.IsNullOrEmpty(roomname.text)){

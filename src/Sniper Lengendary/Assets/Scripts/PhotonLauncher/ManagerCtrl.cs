@@ -16,6 +16,7 @@ public class ManagerCtrl : MonoBehaviour
     void Start()
     {
     
+    
     }
     // private void _IsFirstTime(){
     //     if (!PlayerPrefs.HasKey("NewPlayer")){

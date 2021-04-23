@@ -14,10 +14,10 @@ public class isDamage : MonoBehaviour
         parent = PlayerObj.GetComponent<PlayerCtrl>();
     }
 
-    public void _isDamaging(int damage){
+    public void _isDamaging(int damage, string nameHost){
         if (PV.IsMine){
-            Debug.Log("as");
-            parent._isDamaging(damage);
+            Debug.Log(nameHost);
+            parent._isDamaging(damage,nameHost);
         }
     }
 }

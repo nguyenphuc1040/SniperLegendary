@@ -9,6 +9,7 @@ public class Bullet : MonoBehaviour
     PhotonView PV;
     Vector3 mPrevPos;
     public GameObject blood,bulletTrade;
+    public string nameHost;
     private void Awake() {
         speed = 790;
     }
@@ -33,31 +34,30 @@ public class Bullet : MonoBehaviour
         for (int i=0; i<hits.Length; i++){
             if (hits[i].collider.gameObject.tag=="headPlayer"){
                 PhotonNetwork.Instantiate(Path.Combine("Player","blood"),hits[i].point,Quaternion.LookRotation(hits[i].normal));
-                hits[i].collider.gameObject.GetComponent<isDamage>()._isDamaging(3);
+                hits[i].collider.gameObject.GetComponent<isDamage>()._isDamaging(3,nameHost);
             }
             if (hits[i].collider.gameObject.tag=="bodyPlayer"){
                 PhotonNetwork.Instantiate(Path.Combine("Player","blood"),hits[i].point,Quaternion.LookRotation(hits[i].normal));
-                hits[i].collider.gameObject.GetComponent<isDamage>()._isDamaging(1);
+                hits[i].collider.gameObject.GetComponent<isDamage>()._isDamaging(1,nameHost);
             }
             if (hits[i].collider.gameObject.tag=="construction"){
                 PhotonNetwork.Instantiate(Path.Combine("Player","bulletTrade"),hits[i].point,Quaternion.LookRotation(hits[i].normal));
             }
-            if (PV.IsMine) PhotonNetwork.Destroy(gameObject);
+           // if (PV.IsMine) PhotonNetwork.Destroy(gameObject);
             Debug.Log(hits[i].collider.gameObject.tag);
-            break;
         }
     }
-    void _rayCastAll(){
-        RaycastHit[] hits = Physics.RaycastAll(new Ray(mPrevPos,(transform.position-mPrevPos).normalized),(transform.position-mPrevPos).magnitude);
-        for (int i=0; i<hits.Length;i++){
-            if (hits[i].collider.gameObject.tag=="headPlayer"){
-                Instantiate(blood,hits[i].point,Quaternion.identity);
-                hits[i].collider.gameObject.GetComponent<isDamage>()._isDamaging(3);
-            }
-            if (hits[i].collider.gameObject.tag=="bodyPlayer"){
-                hits[i].collider.gameObject.GetComponent<isDamage>()._isDamaging(1);
-            }
-        }
-    }
+    // void _rayCastAll(){
+    //     RaycastHit[] hits = Physics.RaycastAll(new Ray(mPrevPos,(transform.position-mPrevPos).normalized),(transform.position-mPrevPos).magnitude);
+    //     for (int i=0; i<hits.Length;i++){
+    //         if (hits[i].collider.gameObject.tag=="headPlayer"){
+    //             Instantiate(blood,hits[i].point,Quaternion.identity);
+    //             hits[i].collider.gameObject.GetComponent<isDamage>()._isDamaging(3);
+    //         }
+    //         if (hits[i].collider.gameObject.tag=="bodyPlayer"){
+    //             hits[i].collider.gameObject.GetComponent<isDamage>()._isDamaging(1);
+    //         }
+    //     }
+    // }
 
 }
