@@ -17,7 +17,10 @@ public class Bullet : MonoBehaviour
     {   
         PV = GetComponent<PhotonView>();
         mPrevPos=transform.position;   
-        if (PV.IsMine) transform.localScale = new Vector3(0.1f,0.1f,0.1f);
+        if (PV.IsMine){
+            transform.localScale = new Vector3(0.1f,0.1f,0.1f);
+            StartCoroutine(_Destroy());
+        }
     }
 
     private void Update() {
@@ -25,7 +28,7 @@ public class Bullet : MonoBehaviour
         mPrevPos = transform.position;
         if (PV.IsMine) transform.localScale += new Vector3(0.1f,0.1f,0.1f);
         transform.Translate(Vector3.forward*speed* Time.deltaTime);
-        transform.Translate(Vector3.up*-4.9f*Time.deltaTime);
+        transform.Translate(Vector3.up*-4.9f/2*Time.deltaTime);
         _rayCastOne();
         
     }
@@ -43,9 +46,13 @@ public class Bullet : MonoBehaviour
             if (hits[i].collider.gameObject.tag=="construction"){
                 PhotonNetwork.Instantiate(Path.Combine("Player","bulletTrade"),hits[i].point,Quaternion.LookRotation(hits[i].normal));
             }
-           // if (PV.IsMine) PhotonNetwork.Destroy(gameObject);
+            if (PV.IsMine) PhotonNetwork.Destroy(gameObject);
             Debug.Log(hits[i].collider.gameObject.tag);
         }
+    }
+    IEnumerator _Destroy(){
+        yield return new WaitForSeconds(4f);
+        PhotonNetwork.Destroy(gameObject);
     }
     // void _rayCastAll(){
     //     RaycastHit[] hits = Physics.RaycastAll(new Ray(mPrevPos,(transform.position-mPrevPos).normalized),(transform.position-mPrevPos).magnitude);

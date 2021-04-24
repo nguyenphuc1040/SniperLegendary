@@ -18,7 +18,7 @@ public class PlayerMain : MonoBehaviour
         }
     }
     private void Update() {
-        if (GameCtrl.ins.isRevival){
+        if (GameCtrl.ins.isRevival && PV.IsMine){
             GameCtrl.ins.isRevival = false;
 
             StartCoroutine(_countTime(2f));

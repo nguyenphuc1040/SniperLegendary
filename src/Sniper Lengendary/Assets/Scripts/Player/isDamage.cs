@@ -16,7 +16,6 @@ public class isDamage : MonoBehaviour
 
     public void _isDamaging(int damage, string nameHost){
         if (PV.IsMine){
-            Debug.Log(nameHost);
             parent._isDamaging(damage,nameHost);
         }
     }

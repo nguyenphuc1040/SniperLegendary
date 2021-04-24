@@ -452,13 +452,10 @@ MonoBehaviour:
     SynchronizeType: 1
     Name: idle
   - Type: 4
-    SynchronizeType: 2
+    SynchronizeType: 1
     Name: shotbool
-  - Type: 4
-    SynchronizeType: 0
-    Name: idlebool
   m_SynchronizeLayers:
-  - SynchronizeType: 2
+  - SynchronizeType: 0
     LayerIndex: 0
 --- !u!114 &6840126403642125442
 MonoBehaviour:

@@ -6,6 +6,7 @@ public class UICtrl : MonoBehaviour
 {
     public static UICtrl ins;
     public GameObject ScopeOverlay,aimShot,weaponCam;
+    public Image bloodBar;
     private void Awake() {
         ins = this;
         _ScopeOnOff(false);
@@ -23,6 +24,8 @@ public class UICtrl : MonoBehaviour
 
         infoKillerAnimator.SetTrigger("show");
     }
-  
+    public void _setBlood(int x){
+        bloodBar.GetComponent<Image>().fillAmount = (float)x/3;
+    }
 
 }

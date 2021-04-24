@@ -28,6 +28,7 @@ public class ScopeMode : MonoBehaviour
         if (PV.IsMine){
             camScope.GetComponent<Camera>().fieldOfView = zoomNumber;
             _zoomChange();
+            if (isScope) _mouseSentivityChange(1); else _mouseSentivityChange(0);
         }
     
 
@@ -49,12 +50,12 @@ public class ScopeMode : MonoBehaviour
            
             _handSetBool(true,false,false);
             StartCoroutine(_turnOnScope());
-            
         } else {
             _weaponSetBool(false,true,false);
             _handSetBool(false,true,false);
             Weapon.SetActive(true);
             StartCoroutine(_turnOffScope());
+            
         }
     }
     public void _weaponSetBool(bool x,bool y,bool z){
@@ -69,15 +70,13 @@ public class ScopeMode : MonoBehaviour
         handAnimator.SetBool("reloadbool",z);
     }
     IEnumerator _turnOffScope(){
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.15f);
         _SetActiveObj(true);
-        _mouseSentivityChange(0);
     }
     IEnumerator _turnOnScope(){
         yield return new WaitForSeconds(0.15f);
         Weapon.SetActive(false);
         _SetActiveObj(false);
-        _mouseSentivityChange(1);
     }
 
     void _SetActiveObj(bool weaponcam){

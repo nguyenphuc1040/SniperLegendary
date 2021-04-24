@@ -43,7 +43,10 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
         isLoaded = true;
         isHavingBullet=true;
         speed = 3f;
-        if (PV.IsMine) StartCoroutine(_GetPing());
+        if (PV.IsMine) {
+            StartCoroutine(_GetPing());
+            UICtrl.ins._setBlood(data.getBlood());
+        }
        
     }
     IEnumerator _GetPing(){
@@ -53,11 +56,13 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
     }
     void Update()
     {
-        if (PV.IsMine &&!isDied && !GameCtrl.ins.statusSettingPanel) {
-            _playerMove();
-            _keyboardController();
+        if (PV.IsMine){
+            if (!isDied && !GameCtrl.ins.statusSettingPanel) {
+                _playerMove();
+                _keyboardController();
+            }
+            if (GameCtrl.ins.statusSettingPanel) playerAnimator.SetBool("idlebool",true);
         }
-        if (PV.IsMine && GameCtrl.ins.statusSettingPanel) playerAnimator.SetBool("idlebool",true);
     }
     Vector3 move;
     public bool isDied;
@@ -74,7 +79,7 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
         } else _updateRun(true);
         move.y -= 9.8f*Time.deltaTime;      
         characterController.Move(move*Time.deltaTime);
-      //  if (move.y<-20f) _isDamaging(3);
+        if (move.y<-20f && characterController.isGrounded) _isDamaging(1,"nhảy lầu");
     }
     void _updateRun(bool x){
         playerAnimator.SetBool("idlebool",x);
@@ -88,15 +93,15 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
         if (weaponComponent.isScope || !isLoaded) speed = 3f; 
             else speed = (Input.GetKey(KeyCode.LeftShift)) ? 6f : 3f;
         if (Input.GetMouseButtonDown(0) && isHavingBullet){
+            isLoaded = false;
             isHavingBullet=false;
-            Debug.Log("stho");
             cameraAnimator.SetFloat("idle",1f);
             cameraAnimator.SetBool("shotbool",true);
             StartCoroutine(_shotDone());
             PV.RPC("_setInfoBullet",RpcTarget.All,data.getNamePlayer());
             PhotonNetwork.Instantiate(Path.Combine("Player","Bullet"),barrelPosition.position,barrelPosition.rotation);           
         }
-        if (Input.GetMouseButtonUp(0) && isLoaded){
+        if (Input.GetMouseButtonUp(0) && !isLoaded){
     
             if (weaponComponent.isScope) weaponComponent._scopeTransition();
             StartCoroutine(_reloadHandAndWeapon());
@@ -129,43 +134,36 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
     }
 
     IEnumerator _reloadBullet(){
-        isLoaded = false;
+
         yield return new WaitForSeconds(1.8f);
         isHavingBullet=true;
         isLoaded = true;
     }
 
     public void _isDamaging(int damage, string nameShotYou){
-        if (PV.IsMine) {
-            Debug.Log(data.getBlood());
             data.setBlood(data.getBlood()-damage);
-            Debug.Log(data.getBlood());
+            UICtrl.ins._setBlood(data.getBlood());
             if(data.getBlood()<=0) _isDied(nameShotYou);
-        }
-       
     }
     [PunRPC]
     void _showInfoKiller(string st){
         UICtrl.ins._showInfoKiller(st);
     }
     public void _isDied(string nameShotYou){
-        if (PV.IsMine){
             playerAnimator.SetBool("diedbool",true);
             weaponComponent.Weapon.SetActive(false);
             isDied = true;
-            GameCtrl.ins._revival();
+     
             UICtrl.ins._ScopeOnOff(false);
             string tmp = nameShotYou + " đã tiêu diệt " + data.getNamePlayer();
             PV.RPC("_showInfoKiller",RpcTarget.All,tmp);
-            StartCoroutine(_countTime(1.8f));
-        }      
+            StartCoroutine(_countTime(1.8f));     
     }
     IEnumerator _countTime(float time){
         MainCam._getFollower(CamHere);
+        GameCtrl.ins._revival();
         yield return new WaitForSeconds(time);
-        _destroyGameObject();
-    }
-    void _destroyGameObject(){
-        PhotonNetwork.Destroy(gameObject);
+        if (PV.IsMine) PhotonNetwork.Destroy(gameObject);
+
     }
 }
