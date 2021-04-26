@@ -4,15 +4,37 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour
 {
     GameObject follower;
-    void Update()
+    void FixedUpdate()
     {
+        // if (isFollowSmooth){
+        //     Vector3 desiredPostion = smoothObject.transform.position + offset;
+        //     Vector3 smoothPostion = Vector3.Lerp(transform.position, desiredPostion,smoothSpeed);
+        //     transform.position = smoothPostion;
+        // }
+    }
+
+    void Update(){
+       
         
     }
 
     public void _getFollower(GameObject x){
        follower = x;
-       transform.rotation = Quaternion.identity;
+       transform.rotation = follower.transform.rotation;
        transform.position = follower.transform.position;
        transform.SetParent(x.transform);
+       
     }
+    GameObject smoothObject;
+    Vector3 offset;
+    float smoothSpeed = 1f;
+    bool isFollowSmooth;
+    public void _smoothCamera(GameObject x){
+        _SetIsSmooth(true);
+        smoothObject = x;
+    }
+    public void _SetIsSmooth(bool x){
+        isFollowSmooth = x;
+    }
+
 }

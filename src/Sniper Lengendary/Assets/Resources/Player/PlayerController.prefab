@@ -95,8 +95,8 @@ CharacterController:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Height: 0.54
-  m_Radius: 0.66
+  m_Height: 1.44
+  m_Radius: 0.01
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
@@ -127,9 +127,11 @@ MonoBehaviour:
   pointCameraFollow: {fileID: 1006058135733881022}
   CamHere: {fileID: 0}
   weapons: {fileID: 8875073503929555580}
+  bodyPlayer: {fileID: 8875073503877718524}
+  isBoarding: 0
+  PointCamVehical: {fileID: 0}
   isDied: 0
   Bullet: {fileID: 3183274574812268967, guid: 7a115ca6a413c4345a669dcccd31c603, type: 3}
-  breathAnimation: {fileID: 0}
 --- !u!82 &8875073502939883438
 AudioSource:
   m_ObjectHideFlags: 0
@@ -201,7 +203,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.5
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -599,7 +601,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 250
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0
@@ -649,7 +651,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.5
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -1053,6 +1055,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 4463556434305703169, guid: a7389308dbeab4646aee51c163afe8bf,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4463556434305703171, guid: a7389308dbeab4646aee51c163afe8bf,
         type: 3}

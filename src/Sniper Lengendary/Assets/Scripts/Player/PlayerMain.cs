@@ -10,7 +10,13 @@ public class PlayerMain : MonoBehaviour
     void Start()
     {
         PV = GetComponent<PhotonView>();
-        if (PV.IsMine) CreatePlayerMain();
+        if (PV.IsMine) {
+            CreatePlayerMain();
+            if (PhotonNetwork.IsMasterClient){
+                Debug.Log("Tao la chu");
+                PhotonNetwork.Instantiate(Path.Combine("Player","Aventador"),StartPosition.ins._getVehicalPos().position,Quaternion.identity);
+            }
+        }
     }
     public void CreatePlayerMain(){
         if (PV.IsMine){

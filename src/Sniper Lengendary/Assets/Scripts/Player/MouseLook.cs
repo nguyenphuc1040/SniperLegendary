@@ -25,7 +25,7 @@ public class MouseLook : MonoBehaviour
         }
     }
     private void Update() {
-        if (PV.IsMine && !parentComponent.isDied && !GameCtrl.ins.statusSettingPanel){
+        if (PV.IsMine && !parentComponent.isDied && !GameCtrl.ins.statusSettingPanel && !parentComponent.isBoarding){
             float mouseX = Input.GetAxis("Mouse X")*mouseSensitivity*Time.deltaTime;
             float mouseY = Input.GetAxis("Mouse Y")*mouseSensitivity*Time.deltaTime;
 
