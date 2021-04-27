@@ -38,16 +38,18 @@ public class Bullet : MonoBehaviour
             if (hits[i].collider.gameObject.tag=="headPlayer"){
                 PhotonNetwork.Instantiate(Path.Combine("Player","blood"),hits[i].point,Quaternion.LookRotation(hits[i].normal));
                 hits[i].collider.gameObject.GetComponent<isDamage>()._isDamaging(3,nameHost);
+                if (PV.IsMine) PhotonNetwork.Destroy(gameObject);
             }
             if (hits[i].collider.gameObject.tag=="bodyPlayer"){
                 PhotonNetwork.Instantiate(Path.Combine("Player","blood"),hits[i].point,Quaternion.LookRotation(hits[i].normal));
                 hits[i].collider.gameObject.GetComponent<isDamage>()._isDamaging(1,nameHost);
+                if (PV.IsMine) PhotonNetwork.Destroy(gameObject);
             }
             if (hits[i].collider.gameObject.tag=="construction"){
                 PhotonNetwork.Instantiate(Path.Combine("Player","bulletTrade"),hits[i].point,Quaternion.LookRotation(hits[i].normal));
+                if (PV.IsMine) PhotonNetwork.Destroy(gameObject);
             }
-            if (PV.IsMine) PhotonNetwork.Destroy(gameObject);
-            Debug.Log(hits[i].collider.gameObject.tag);
+            
         }
     }
     IEnumerator _Destroy(){

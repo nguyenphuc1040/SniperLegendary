@@ -2,77 +2,147 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
-
+using System;
 public class Vehicle : MonoBehaviour
 {
-    public CharacterController characterController;
     public GameObject pointVehical;
+    public Transform jumpOutPosition;
     PhotonView PV;
-    public GameObject WheelFL, WheelFR, WheelBL, WheelBR;
+    Rigidbody mybody;
     public bool isOwned;
-    public float speed,z,x;
+    float currentSteerAngle, currentbreakForce;
+    private float horizontalInput,verticalInput;
+    private bool isBreaking;
+    [SerializeField]
+    private float speedForce, breakForce, maxSteerAngle;
+
+    public WheelCollider frontWheelLeft,frontWheelRight, backWheelLeft,backWheelRight;
+    public Transform WheelFL, WheelFR, WheelBL, WheelBR;
+    public AudioSource audio_source, EngineAudioSource;
+    public AudioClip StartEngineCar;
+    public bool  IsPowerON;
     void Start()
     {
         PV = GetComponent<PhotonView>();
-        StartCoroutine(_SpeedCtrl());
-        StartCoroutine(_Phanh());
+        mybody = GetComponent<Rigidbody>();
+        EngineAudioSource.mute = true;
+        StartCoroutine(_SoundEngine());
+        StartCoroutine(_RoadSound());
     }
-    void Update()
+    void FixedUpdate()
     {
-        _Controller();
+        if (IsPowerON){
+            _Controller();
+            _Steering();
+            _UpdateWheels();
+           
+            if (isRoadSound){
+                EngineAudioSource.pitch = soundPitchRoad;
+            } else {
+                EngineAudioSource.pitch = soundPitch;
+            }   
+
+        }
+      
     }
-    Vector3 move;
-    bool isPhanh;
+    float isNotInputV;
+    public void _PowerON(bool x){ 
+        if (!IsPowerON && x){
+     
+            audio_source.PlayOneShot(StartEngineCar);
+            StartCoroutine(_PowerStartSound());
+        }
+        if (IsPowerON && !x){
+            EngineAudioSource.mute = true;
+        }
+        IsPowerON = x;
+    }
+  
     public void _Controller(){
-        if (Input.GetKeyDown(KeyCode.Space)){
-                isPhanh = true;
-        } else if (Input.GetKeyUp(KeyCode.Space))isPhanh = false;         
-        if (characterController.isGrounded){
-            float direct= speed;
-            move = transform.forward*direct;
-               
-        }
-        move.y = -9.8f*Time.deltaTime;
-        characterController.Move(move*Time.deltaTime);
-        if (x!=0 && speed!=0) {
-            WheelFR.transform.Rotate(Vector3.forward*-100f*x*Time.deltaTime);
-            WheelFL.transform.Rotate(Vector3.forward*-100f*x*Time.deltaTime);
-           // transform.Rotate(Vector3.up*90f*x*Time.deltaTime);
-            var tmp = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y+ x*100f*Time.deltaTime, transform.eulerAngles.z);
-            transform.rotation = Quaternion.Lerp(transform.rotation, tmp , Time.deltaTime * 10);
-        }
+        isNotInputV = (verticalInput==0) ? 100f : 0f;
+        backWheelLeft.motorTorque = verticalInput*speedForce;
+        backWheelRight.motorTorque = verticalInput*speedForce;
+        currentbreakForce = isBreaking ? breakForce : isNotInputV;
+        _ApplyBreaking();
+        
     }
-    IEnumerator _SpeedCtrl(){
+    void _ApplyBreaking(){
+        frontWheelLeft.brakeTorque = currentbreakForce;
+        frontWheelRight.brakeTorque = currentbreakForce;
+        backWheelLeft.brakeTorque = currentbreakForce;
+        backWheelRight.brakeTorque = currentbreakForce;
+    }
+    IEnumerator _PowerStartSound(){
+        yield return new WaitForSeconds(1.4f);
+        EngineAudioSource.mute = false;
+        soundPitch = 0.2f;
+        
+    }
+    public void _SetInputDirection(float x, float z) {
+        this.horizontalInput =x;
+        this.verticalInput =z;
+    }
+    public void _SetInputBreaking(bool x){
+        this.isBreaking = x;
+    }
+
+    void _Steering(){
+        currentSteerAngle = maxSteerAngle * horizontalInput;
+        frontWheelLeft.steerAngle = currentSteerAngle;
+        frontWheelRight.steerAngle = currentSteerAngle;
+    }
+
+    void _UpdateWheels(){
+        _UpdateSingleWheel(frontWheelLeft,WheelFL);
+        _UpdateSingleWheel(frontWheelRight,WheelFR);
+        _UpdateSingleWheel(backWheelLeft,WheelBL);
+        _UpdateSingleWheel(backWheelRight,WheelBR);
+    }
+
+    void _UpdateSingleWheel(WheelCollider x, Transform y){
+        Vector3 pos;
+        Quaternion rot;
+        x.GetWorldPose(out pos, out rot);
+        y.rotation = rot;
+        y.position = pos;
+    }
+    float soundPitch, soundPitchRoad;
+    public bool isRoadSound;
+    IEnumerator _SoundEngine(){
         yield return new WaitForSeconds(0.1f);
-        if (!isPhanh){
-            if (z>0) {
-            if (speed<37) speed +=0.9f;
-            } else 
-            if (z<0){
-                if (speed>-30) speed -=0.7f;
-                
-            }  else {
-                if (speed>0) speed -=1.1f;
-                if (speed<0) speed +=2.1f;
-                if (speed<2f && speed>-2f) speed = 0;
+        if (!isRoadSound){
+            soundPitchRoad = soundPitch;
+            if (verticalInput!=0){
+    
+                if (soundPitch<1.5f) soundPitch+=0.005f;
+                    
+                } else {
+                    if (soundPitch>0.23f) soundPitch-=0.03f;
             }
         }
-        Debug.Log(speed);
-        StartCoroutine(_SpeedCtrl());
+      
+        StartCoroutine(_SoundEngine());
     }
-
-    IEnumerator _Phanh(){
+    IEnumerator _RoadSound(){
         yield return new WaitForSeconds(0.1f);
-        if (isPhanh) {
-            speed = speed/1.3f;
+        if (isRoadSound){
+            if (soundPitchRoad<1.7f) soundPitchRoad+=0.2f;
+            soundPitch = soundPitchRoad;
         }
-        StartCoroutine(_Phanh());
+        StartCoroutine(_RoadSound());
     }
 
-    public void _setZ(float x){ 
-        z= x; 
+    [PunRPC] // isOwned
+    void _setOwned(bool x){
+        isOwned = x;
     }
-    public void _setX(float x){
-        this.x = x;
+    [PunRPC] 
+    void _setPitchAudio(float pitch){
+        EngineAudioSource.pitch = pitch;
+    }
+
+    [PunRPC]
+    void _PowerOn(bool x){
+        IsPowerON = x;
     }
 }

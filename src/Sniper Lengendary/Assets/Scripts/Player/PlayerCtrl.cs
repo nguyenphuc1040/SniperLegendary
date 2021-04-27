@@ -6,6 +6,7 @@ using Photon.Pun;
 using dataObj;
 public class PlayerCtrl : MonoBehaviourPunCallbacks
 {
+    public GameObject PlayerObject;
     public CharacterController characterController;
     PhotonView PV;
     dataPlayer data = new dataPlayer();
@@ -25,6 +26,8 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
         PV = GetComponent<PhotonView>();
         if (PV.IsMine){
             weaponComponent = weapons.GetComponent<ScopeMode>();
+            PlayerObject = GameObject.Find("PlayerObject");
+            transform.SetParent(PlayerObject.transform);
             CamHere = GameObject.Find("CamHere");
             CamRotate = GameObject.Find("CamRotate");
             MainCam = CamHere.transform.Find("CameraMain").GetComponent<CameraFollow>();
@@ -58,14 +61,37 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(1f);
         StartCoroutine(_GetPing()); 
     }
+    bool isPowerOnCar;
     void Update()
     {
         if (PV.IsMine){
-          
+            
             if (GameCtrl.ins.statusSettingPanel) playerAnimator.SetBool("idlebool",true);
             if (isBoarding){
                  _ControllerVehical();
-
+                if (Input.GetKeyDown(KeyCode.G)){
+                   
+                    CarComponent._SetInputDirection(0,0);
+                    MainCam._getFollower(pointCameraFollow);
+                    CarComponent.isOwned =false;
+                    transform.position = CarComponent.jumpOutPosition.position;
+                    CamRotate.GetComponent<CamRotate>()._getFollower(CamHere);
+                    CamRotate.GetComponent<CamRotate>()._setRotate(false);
+                    characterController.enabled = true;
+                    transform.SetParent(PlayerObject.transform);
+                    PV.RPC("_setActiveBody",RpcTarget.All,true);
+                    isBoarding = false;
+                }
+                if (Input.GetKeyDown(KeyCode.P)){
+                    isPowerOnCar  = !isPowerOnCar;
+                    CarComponent._PowerON(isPowerOnCar);
+                }
+                if (Input.GetMouseButtonDown(1)){
+                    CarComponent.isRoadSound = true;
+                } 
+                if (Input.GetMouseButtonUp(1)){
+                    CarComponent.isRoadSound = false;
+                }
             }
                 else {
                     if (!isDied && !GameCtrl.ins.statusSettingPanel) {
@@ -81,45 +107,42 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
     public GameObject PointCamVehical;
     void FixedUpdate(){
         if (PV.IsMine){
+            
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray,out hit, 3f))
             {
-                if (Input.GetKeyDown(KeyCode.F))
-                    if (hit.collider.gameObject.tag == "Vehical")
+                if (Input.GetKeyDown(KeyCode.F) && !isBoarding)
+                    if (hit.collider.gameObject.tag == "Vehical" && !hit.collider.gameObject.GetComponent<Vehicle>().isOwned)
                     {
-                        Debug.Log("Len xe nao");
+
                         CarObj = hit.collider.gameObject;
                         CarComponent = CarObj.GetComponent<Vehicle>();
+                        CarComponent.isOwned =true;
                         isBoarding = true;
                         MainCam._getFollower(CamRotate.GetComponent<CamRotate>().Move);
                         CamRotate.GetComponent<CamRotate>()._getFollower(CarComponent.pointVehical);
                         CamRotate.GetComponent<CamRotate>()._setRotate(true);
-                       // MainCam._smoothCamera(CarComponent.pointVehical);
+                        characterController.enabled = false;
                         transform.position = CarObj.transform.position;
                         transform.SetParent(CarObj.transform);
                         PV.RPC("_setActiveBody",RpcTarget.All,false);
-                    
                     }    
-                else  
-                if (Input.GetKeyDown(KeyCode.F) && isBoarding){
-                    isBoarding = false;
-                    MainCam._getFollower(pointCameraFollow);
-                  //  MainCam._SetIsSmooth(false);
-                }
+         
+               
             }
+
         }
         
     }
+
     [PunRPC]
     void _setActiveBody(bool x){
         bodyPlayer.SetActive(x);
     }
-    float moveVehical;
     void _ControllerVehical(){
-        moveVehical = Input.GetAxis("Vertical");
-        CarComponent._setZ(moveVehical);
-        CarComponent._setX(Input.GetAxis("Horizontal"));
+        CarComponent._SetInputDirection(Input.GetAxis("Horizontal"),Input.GetAxis("Vertical"));
+        CarComponent._SetInputBreaking(Input.GetKey(KeyCode.Space));
     }
 
     Vector3 move;

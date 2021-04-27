@@ -25,14 +25,9 @@ public class CameraFollow : MonoBehaviour
        transform.SetParent(x.transform);
        
     }
-    GameObject smoothObject;
+
     Vector3 offset;
-    float smoothSpeed = 1f;
     bool isFollowSmooth;
-    public void _smoothCamera(GameObject x){
-        _SetIsSmooth(true);
-        smoothObject = x;
-    }
     public void _SetIsSmooth(bool x){
         isFollowSmooth = x;
     }
