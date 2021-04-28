@@ -7,7 +7,7 @@ public class Vehicle : MonoBehaviour
 {
     public GameObject pointVehical;
     public Transform jumpOutPosition;
-    PhotonView PV;
+    public PhotonView PV;
     Rigidbody mybody;
     public bool isOwned;
     float currentSteerAngle, currentbreakForce;
@@ -20,26 +20,29 @@ public class Vehicle : MonoBehaviour
     public Transform WheelFL, WheelFR, WheelBL, WheelBR;
     public AudioSource audio_source, EngineAudioSource;
     public AudioClip StartEngineCar;
+    public Vector3 centerOfMassVector3;
     public bool  IsPowerON;
     void Start()
     {
         PV = GetComponent<PhotonView>();
         mybody = GetComponent<Rigidbody>();
-        EngineAudioSource.mute = true;
         StartCoroutine(_SoundEngine());
         StartCoroutine(_RoadSound());
+        mybody.centerOfMass = centerOfMassVector3;
     }
     void FixedUpdate()
     {
-        if (IsPowerON){
+        if (IsPowerON && PV.IsMine){
             _Controller();
             _Steering();
             _UpdateWheels();
            
             if (isRoadSound){
-                EngineAudioSource.pitch = soundPitchRoad;
+                PV.RPC("_setPitchAudio",RpcTarget.All,soundPitchRoad);
+               // EngineAudioSource.pitch = soundPitchRoad;
             } else {
-                EngineAudioSource.pitch = soundPitch;
+               // EngineAudioSource.pitch = soundPitch;
+                PV.RPC("_setPitchAudio",RpcTarget.All,soundPitch);
             }   
 
         }
@@ -49,20 +52,26 @@ public class Vehicle : MonoBehaviour
     public void _PowerON(bool x){ 
         if (!IsPowerON && x){
      
-            audio_source.PlayOneShot(StartEngineCar);
+            PV.RPC("_startEngine",RpcTarget.All);
             StartCoroutine(_PowerStartSound());
         }
         if (IsPowerON && !x){
-            EngineAudioSource.mute = true;
+            PV.RPC("_EngineMute",RpcTarget.All,true);
         }
         IsPowerON = x;
     }
-  
+    [PunRPC]
+    void _startEngine(){
+        audio_source.PlayOneShot(StartEngineCar);
+    }
+    [PunRPC]
+    void _EngineMute(bool x){
+        EngineAudioSource.mute = x;
+    }
     public void _Controller(){
-        isNotInputV = (verticalInput==0) ? 100f : 0f;
-        backWheelLeft.motorTorque = verticalInput*speedForce;
-        backWheelRight.motorTorque = verticalInput*speedForce;
-        currentbreakForce = isBreaking ? breakForce : isNotInputV;
+        backWheelLeft.motorTorque = verticalInput* speedForce*Time.deltaTime;
+        backWheelRight.motorTorque = verticalInput* speedForce*Time.deltaTime;
+        currentbreakForce = isBreaking ? breakForce : 0;
         _ApplyBreaking();
         
     }
@@ -74,7 +83,7 @@ public class Vehicle : MonoBehaviour
     }
     IEnumerator _PowerStartSound(){
         yield return new WaitForSeconds(1.4f);
-        EngineAudioSource.mute = false;
+        PV.RPC("_EngineMute",RpcTarget.All,false);
         soundPitch = 0.2f;
         
     }
@@ -88,8 +97,8 @@ public class Vehicle : MonoBehaviour
 
     void _Steering(){
         currentSteerAngle = maxSteerAngle * horizontalInput;
-        frontWheelLeft.steerAngle = currentSteerAngle;
-        frontWheelRight.steerAngle = currentSteerAngle;
+        frontWheelLeft.steerAngle =  Mathf.Lerp(frontWheelLeft.steerAngle,currentSteerAngle,0.1f);
+        frontWheelRight.steerAngle =  Mathf.Lerp(frontWheelRight.steerAngle,currentSteerAngle,0.1f);
     }
 
     void _UpdateWheels(){

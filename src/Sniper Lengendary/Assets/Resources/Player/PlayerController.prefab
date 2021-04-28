@@ -115,7 +115,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerObject: {fileID: 0}
-  characterController: {fileID: 0}
+  characterController: {fileID: 8875073502939883439}
   playerAnimator: {fileID: 8875073503885103676}
   handAnimator: {fileID: 8875073503501789061}
   cameraAnimator: {fileID: 8875073504207310129}
