@@ -76,8 +76,8 @@ public class Vehicle : MonoBehaviour
         
     }
     void _ApplyBreaking(){
-        frontWheelLeft.brakeTorque = currentbreakForce;
-        frontWheelRight.brakeTorque = currentbreakForce;
+        frontWheelLeft.brakeTorque = 0;
+        frontWheelRight.brakeTorque = 0;
         backWheelLeft.brakeTorque = currentbreakForce;
         backWheelRight.brakeTorque = currentbreakForce;
     }

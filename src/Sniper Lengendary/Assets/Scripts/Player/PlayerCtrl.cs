@@ -6,7 +6,7 @@ using Photon.Pun;
 using dataObj;
 public class PlayerCtrl : MonoBehaviourPunCallbacks
 {
-    public GameObject PlayerObject;
+
     public CharacterController characterController;
     PhotonView PV;
     dataPlayer data = new dataPlayer();
@@ -26,8 +26,6 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
         PV = GetComponent<PhotonView>();
         if (PV.IsMine){
             weaponComponent = weapons.GetComponent<ScopeMode>();
-            PlayerObject = GameObject.Find("PlayerObject");
-            transform.SetParent(PlayerObject.transform);
             CamHere = GameObject.Find("CamHere");
             CamRotate = GameObject.Find("CamRotate");
             MainCam = CamHere.transform.Find("CameraMain").GetComponent<CameraFollow>();
@@ -68,7 +66,7 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
             
             if (GameCtrl.ins.statusSettingPanel) playerAnimator.SetBool("idlebool",true);
             if (isBoarding){
-                 _ControllerVehical();
+                PV.RPC("_ControllerVehical",RpcTarget.All,Input.GetAxis("Horizontal"),Input.GetAxis("Vertical"),Input.GetKey(KeyCode.Space));
                 if (Input.GetKeyDown(KeyCode.G)){
                    
                     CarComponent._SetInputDirection(0,0);
@@ -78,7 +76,7 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
                     CamRotate.GetComponent<CamRotate>()._getFollower(CamHere);
                     CamRotate.GetComponent<CamRotate>()._setRotate(false);
                     characterController.enabled = true;
-                    transform.SetParent(PlayerObject.transform);
+                    transform.SetParent(null,true);
                     PV.RPC("_setActiveBody",RpcTarget.All,true);
                     isBoarding = false;
                 }
@@ -106,7 +104,7 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
     GameObject CarObj;
     public GameObject PointCamVehical;
     void FixedUpdate(){
-        if (PV.IsMine){
+        
             
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -120,19 +118,21 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
                         CarComponent = CarObj.GetComponent<Vehicle>();
                         CarComponent.isOwned =true;
                         isBoarding = true;
-                        MainCam._getFollower(CamRotate.GetComponent<CamRotate>().Move);
-                        CamRotate.GetComponent<CamRotate>()._getFollower(CarComponent.pointVehical);
-                        CamRotate.GetComponent<CamRotate>()._setRotate(true);
-                        characterController.enabled = false;
-                        transform.position = CarObj.transform.position;
-                        transform.SetParent(CarObj.transform);
-                        PV.RPC("_setActiveBody",RpcTarget.All,false);
+                        if (PV.IsMine){
+                            MainCam._getFollower(CamRotate.GetComponent<CamRotate>().Move);
+                            CamRotate.GetComponent<CamRotate>()._getFollower(CarComponent.pointVehical);
+                            CamRotate.GetComponent<CamRotate>()._setRotate(true);
+                            characterController.enabled = false;
+                            transform.position = CarObj.transform.position;
+                            transform.SetParent(CarObj.transform);
+                            PV.RPC("_setActiveBody",RpcTarget.All,false);
+                        }
+                        
                     }    
          
                
             }
 
-        }
         
     }
 
@@ -140,9 +140,10 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
     void _setActiveBody(bool x){
         bodyPlayer.SetActive(x);
     }
-    void _ControllerVehical(){
-        CarComponent._SetInputDirection(Input.GetAxis("Horizontal"),Input.GetAxis("Vertical"));
-        CarComponent._SetInputBreaking(Input.GetKey(KeyCode.Space));
+    [PunRPC]
+    void _ControllerVehical(float x, float y, bool sp){
+        CarComponent._SetInputDirection(x,y);
+        CarComponent._SetInputBreaking(sp);
     }
 
     Vector3 move;
@@ -170,8 +171,8 @@ public class PlayerCtrl : MonoBehaviourPunCallbacks
 
     public GameObject Bullet;
     void _keyboardController(){
-        if (weaponComponent.isScope || !isLoaded) speed = 3f; 
-            else speed = (Input.GetKey(KeyCode.LeftShift)) ? 20f : 3f;
+        if (weaponComponent.isScope || !isLoaded) speed = 4f; 
+            else speed = (Input.GetKey(KeyCode.LeftShift)) ? 6f : 4f;
         if (Input.GetMouseButtonDown(0) && isHavingBullet){
             isLoaded = false;
             isHavingBullet=false;

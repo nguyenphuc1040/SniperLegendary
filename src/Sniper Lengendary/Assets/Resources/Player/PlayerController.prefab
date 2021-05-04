@@ -114,7 +114,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a0ca9ee0fb6d114b961b70dde492f4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerObject: {fileID: 0}
   characterController: {fileID: 8875073502939883439}
   playerAnimator: {fileID: 8875073503885103676}
   handAnimator: {fileID: 8875073503501789061}

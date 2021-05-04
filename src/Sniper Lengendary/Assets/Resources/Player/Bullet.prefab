@@ -97,7 +97,7 @@ MonoBehaviour:
   blood: {fileID: 2989042658676962265, guid: 4795d732b6d24644391ff009a6fc2dbf, type: 3}
   bulletTrade: {fileID: 7244351932397397774, guid: 2956cc3088886d84dab007c6d7201a0b,
     type: 3}
-  nameHost: 123
+  nameHost: nguyenphuc
 --- !u!114 &4108520448742990675
 MonoBehaviour:
   m_ObjectHideFlags: 0
